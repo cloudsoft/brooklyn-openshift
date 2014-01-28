@@ -1,0 +1,123 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>brooklyn-systems-openshift-paas</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <parent>
+        <groupId>io.cloudsoft.systems.openshift</groupId>
+        <artifactId>brooklyn-systems-openshift-parent</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <name>Brooklyn OpenShift Paas</name>
+
+    <properties>
+        <includedTestGroups/>
+        <excludedTestGroups>Integration,Live,WIP</excludedTestGroups>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.codehaus.groovy.modules.http-builder</groupId>
+            <artifactId>http-builder</artifactId>
+            <version>0.5.1</version>
+            <exclusions>
+                <exclusion>
+                    <!-- tries to bring in 1.7.10 -->
+                    <groupId>org.codehaus.groovy</groupId>
+                    <artifactId>groovy</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        
+        <dependency>
+            <groupId>io.brooklyn</groupId>
+            <artifactId>brooklyn-software-webapp</artifactId>
+            <version>${brooklyn.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>io.brooklyn</groupId>
+            <artifactId>brooklyn-test-support</artifactId>
+            <version>${brooklyn.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.brooklyn</groupId>
+            <artifactId>brooklyn-core</artifactId>
+            <version>${brooklyn.version}</version>
+            <classifier>tests</classifier>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.16</version>
+                <configuration>
+                    <properties>
+                        <property>
+                            <name>listener</name>
+                            <value>brooklyn.test.LoggingVerboseReporter</value>
+                        </property>
+                    </properties>
+                    <enableAssertions>true</enableAssertions>
+                    <groups>${includedTestGroups}</groups>
+                    <excludedGroups>${excludedTestGroups}</excludedGroups>
+                    <testFailureIgnore>false</testFailureIgnore>
+                    <systemPropertyVariables>
+                        <verbose>-1</verbose>
+                    </systemPropertyVariables>
+                    <printSummary>true</printSummary>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>Integration</id>
+            <properties>
+                <includedTestGroups>Integration</includedTestGroups>
+                <excludedTestGroups>Live,WIP</excludedTestGroups>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <inherited>true</inherited>
+                        <executions>
+                            <execution>
+                                <id>run-tests</id>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <phase>integration-test</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>Live</id>
+            <properties>
+                <includedTestGroups>Live</includedTestGroups>
+                <excludedTestGroups>Integration,WIP</excludedTestGroups>
+            </properties>
+        </profile>
+        <profile>
+            <id>WIP</id>
+            <properties>
+                <includedTestGroups>WIP</includedTestGroups>
+                <excludedTestGroups>Integration,Live</excludedTestGroups>
+            </properties>
+        </profile>
+    </profiles>
+</project>
